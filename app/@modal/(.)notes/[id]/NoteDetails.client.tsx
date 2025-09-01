@@ -3,11 +3,13 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { getSingleNote } from '@/lib/api';
+import Modal from '@/components/Modal/Modal';
 
 const NoteDetailsClient = () => {
   const { id } = useParams<{ id: string }>();
+  const router = useRouter();
 
   const {
     data: note,
@@ -19,6 +21,13 @@ const NoteDetailsClient = () => {
     refetchOnMount: false,
   });
 
+  const handleGoBack = () => {
+    const isSure = confirm('Are you sure?');
+    if (isSure) {
+      router.back();
+    }
+  };
+
   if (isLoading) return <p>Loading...</p>;
 
   if (error || !note) return <p>Some error..</p>;
@@ -28,11 +37,14 @@ const NoteDetailsClient = () => {
     : `Created at: ${note.createdAt}`;
 
   return (
-    <div>
-      <h2>{note.title}</h2>
-      <p>{note.content}</p>
-      <p>{formattedDate}</p>
-    </div>
+    <Modal onClose={() => router.back()}>
+      <div>
+        <button onClick={handleGoBack}>Back</button>
+        <h2>{note.title}</h2>
+        <p>{note.content}</p>
+        <p>{formattedDate}</p>
+      </div>
+    </Modal>
   );
 };
 
